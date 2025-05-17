@@ -1,5 +1,5 @@
 // netlify/functions/qr-code.js
-const axios = require('axios');
+const EventSource = require('eventsource');
 require('dotenv').config();
 
 exports.handler = async (event, context) => {
@@ -44,35 +44,136 @@ exports.handler = async (event, context) => {
       };
     }
     
+    const MCP_SIGNED_URL = process.env.MCP_SIGNED_URL;
+    
+    if (!MCP_SIGNED_URL) {
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          error: 'MCP signed URL is not configured',
+          message: 'Please set the MCP_SIGNED_URL environment variable'
+        })
+      };
+    }
+
     console.log(`Generating QR code for text: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''} with size ${size}`);
     
-    // Use a simple third-party QR code API instead of MCP.run for now
-    // This will help determine if the issue is with MCP.run or the Netlify function itself
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(text)}&size=${size}x${size}&format=png`;
-    
-    const response = await axios.get(qrApiUrl, {
-      responseType: 'arraybuffer'
+    // Create a Promise to handle the asynchronous EventSource connection
+    const generateQRCode = new Promise((resolve, reject) => {
+      const mcp = new EventSource(MCP_SIGNED_URL);
+      let requestId = Date.now().toString();
+      let responseReceived = false;
+      
+      // Set a timeout to handle connection issues
+      const timeout = setTimeout(() => {
+        if (!responseReceived) {
+          mcp.close();
+          reject(new Error('Request timed out after 30 seconds'));
+        }
+      }, 30000);
+      
+      mcp.onopen = () => {
+        console.log('Connected to MCP.run servlet');
+        
+        // Define the request to the servlet
+        const request = {
+          id: requestId,
+          method: 'tools/call',
+          params: {
+            name: 'generate',
+            arguments: {
+              text,
+              size
+            }
+          }
+        };
+        
+        // Send the request
+        mcp.dispatchEvent(new MessageEvent('message', {
+          data: JSON.stringify(request)
+        }));
+      };
+      
+      mcp.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Received message:', data);
+          
+          // Check if this is a response to our request
+          if (data.id === requestId && data.result) {
+            responseReceived = true;
+            clearTimeout(timeout);
+            
+            // Extract the QR code content
+            if (data.result.content && data.result.content.length > 0) {
+              // Find the text content with the QR code image
+              const qrContent = data.result.content.find(content => 
+                content.type === 'text' && content.text && content.text.startsWith('data:image/')
+              );
+              
+              if (qrContent && qrContent.text) {
+                mcp.close();
+                resolve(qrContent.text);
+              } else {
+                mcp.close();
+                reject(new Error('No QR code in response'));
+              }
+            } else {
+              mcp.close();
+              reject(new Error('Invalid response structure'));
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing message:', err);
+        }
+      };
+      
+      mcp.onerror = (err) => {
+        console.error('EventSource error:', err);
+        mcp.close();
+        clearTimeout(timeout);
+        reject(new Error('Error connecting to MCP.run servlet'));
+      };
     });
     
-    // Convert the image data to base64
-    const imageBuffer = Buffer.from(response.data, 'binary');
-    const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`;
-    
-    // Return the QR code to the client
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        qrImageBase64: base64Image,
-        success: true
-      })
-    };
+    try {
+      // Execute the QR code generation
+      const qrImageBase64 = await generateQRCode;
+      
+      // Return the QR code to the client
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          qrImageBase64,
+          success: true
+        })
+      };
+    } catch (error) {
+      // This is what we want - if MCP fails, we show the error
+      return {
+        statusCode: 502,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          error: 'MCP.run connection failed',
+          message: error.message,
+          success: false
+        })
+      };
+    }
     
   } catch (error) {
-    console.error('Error generating QR code:', error.message);
+    console.error('Error calling MCP.run servlet:', error.message);
     
     // Provide a detailed error message
     return {
