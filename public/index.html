@@ -100,6 +100,13 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .note {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -128,6 +135,10 @@
         
         <div id="result">
             <p class="status">Your QR code will appear here</p>
+        </div>
+        
+        <div class="note">
+            <p><strong>Note:</strong> This demo is currently using a third-party QR code service instead of the MCP.run servlet due to technical limitations with connecting to MCP.run from serverless functions. The code repository still contains the implementation for both approaches.</p>
         </div>
     </div>
     
