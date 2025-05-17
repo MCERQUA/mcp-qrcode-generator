@@ -165,8 +165,8 @@
             resultDiv.innerHTML = '';
             
             try {
-                // Call our API endpoint
-                const response = await fetch('/api/qr-code', {
+                // Call the Netlify function endpoint
+                const response = await fetch('/.netlify/functions/qr-code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
