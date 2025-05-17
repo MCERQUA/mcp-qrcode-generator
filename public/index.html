@@ -288,6 +288,20 @@
         .error-msg {
             color: #ef4444;
             font-weight: 600;
+            padding: 15px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .mcp-error {
+            color: #ef4444;
+            font-weight: 600;
+            padding: 15px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ef4444;
         }
         
         .download-btn {
@@ -393,20 +407,6 @@
             color: transparent;
         }
         
-        .tech-note {
-            background: rgba(109, 40, 217, 0.1);
-            border-left: 4px solid var(--primary);
-            padding: 15px;
-            margin: 20px 0;
-            font-size: 0.9rem;
-            color: var(--gray);
-            border-radius: 0 10px 10px 0;
-        }
-        
-        .tech-note strong {
-            color: var(--primary);
-        }
-        
         .button-container {
             display: flex;
             justify-content: center;
@@ -417,7 +417,7 @@
     <div class="container">
         <div class="header">
             <h1 class="logo">QR <span>Nova</span></h1>
-            <p class="tagline">Next-generation QR code creation at your fingertips</p>
+            <p class="tagline">Next-generation QR code creation powered by MCP.run</p>
         </div>
         
         <div class="card">
@@ -443,23 +443,19 @@
             
             <div class="loader" id="loadingIndicator">
                 <div class="loading-circle"></div>
-                <p class="loader-text">Generating your QR code...</p>
+                <p class="loader-text">Connecting to MCP.run...</p>
             </div>
             
             <div class="result" id="result">
                 <p class="status">Your QR code will appear here</p>
-            </div>
-            
-            <div class="tech-note">
-                <p><strong>Tech Note:</strong> This app was created to explore MCP (Model Context Protocol) integration. While our original implementation connects to MCP.run on traditional servers, this live demo uses a more serverless-friendly approach.</p>
             </div>
         </div>
         
         <div class="features">
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                <h3 class="feature-title">Lightning Fast</h3>
-                <p class="feature-desc">Generate QR codes instantly with our optimized processing engine.</p>
+                <h3 class="feature-title">MCP Integration</h3>
+                <p class="feature-desc">Powered by Model Context Protocol for AI-enabled QR code generation.</p>
             </div>
             
             <div class="feature-card">
@@ -471,7 +467,7 @@
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-lock"></i></div>
                 <h3 class="feature-title">Secure Processing</h3>
-                <p class="feature-desc">Your data never leaves your device until you share it.</p>
+                <p class="feature-desc">Direct connection to MCP.run for reliable QR code creation.</p>
             </div>
         </div>
         
@@ -510,7 +506,7 @@
             resultDiv.classList.remove('show');
             
             try {
-                // Call the Netlify function endpoint
+                // Call the Netlify function endpoint that connects to MCP.run
                 const response = await fetch('/.netlify/functions/qr-code', {
                     method: 'POST',
                     headers: {
@@ -522,14 +518,23 @@
                     })
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                
+                // Get the response data
                 const data = await response.json();
                 
                 // Hide loading indicator
                 loadingIndicator.style.display = 'none';
+                
+                // If the response was not successful, display the error
+                if (!response.ok || !data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="mcp-error">
+                            <p><i class="fas fa-exclamation-triangle"></i> MCP.run Connection Error</p>
+                            <p>${data.message || 'Unable to connect to MCP.run'}</p>
+                        </div>
+                    `;
+                    resultDiv.classList.add('show');
+                    return;
+                }
                 
                 // Display the QR code
                 resultDiv.innerHTML = `
@@ -546,7 +551,10 @@
                 loadingIndicator.style.display = 'none';
                 
                 resultDiv.innerHTML = `
-                    <p class="error-msg"><i class="fas fa-exclamation-circle"></i> Error generating QR code: ${error.message}</p>
+                    <div class="mcp-error">
+                        <p><i class="fas fa-exclamation-triangle"></i> Error connecting to MCP.run</p>
+                        <p>${error.message}</p>
+                    </div>
                 `;
                 resultDiv.classList.add('show');
                 console.error('Error:', error);
