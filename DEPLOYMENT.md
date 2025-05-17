@@ -16,22 +16,31 @@ git clone https://github.com/MCERQUA/mcp-qrcode-generator.git
 cd mcp-qrcode-generator
 ```
 
-## Step 2: Configure Environment Variables
+## Step 2: Generate a Signed URL from MCP.run
+
+1. Log in to your MCP.run account
+2. Navigate to the "Tool Profiles" section
+3. Look for the "default" profile (or any profile where you've installed the QR code servlet)
+4. Click the "SSE" button
+5. In the "Connect Your Client" modal that appears, set the duration for your signed URL (default is 12 months)
+6. Click the "Generate URL" button
+7. Copy the generated signed URL - you'll need this for the next step
+
+## Step 3: Configure Environment Variables
 
 Create a `.env` file in the root directory with the following content:
 
 ```
-# MCP.run API Configuration
-MCP_API_URL=https://api.mcp.run
-MCP_API_KEY=your_mcp_run_api_key_here
+# MCP.run Configuration
+MCP_SIGNED_URL=your_signed_url_from_mcp_run_here
 
 # Server Configuration
 PORT=3000
 ```
 
-Replace `your_mcp_run_api_key_here` with your actual MCP.run API key.
+Replace `your_signed_url_from_mcp_run_here` with the signed URL you generated in Step 2.
 
-## Step 3: Install Dependencies
+## Step 4: Install Dependencies
 
 Run the following command to install all necessary dependencies:
 
@@ -39,7 +48,7 @@ Run the following command to install all necessary dependencies:
 npm install
 ```
 
-## Step 4: Test Locally
+## Step 5: Test Locally
 
 Start the server locally to ensure everything works:
 
@@ -49,7 +58,7 @@ npm start
 
 Visit `http://localhost:3000` in your browser to test the QR code generator.
 
-## Step 5: Deploy to a Hosting Platform
+## Step 6: Deploy to a Hosting Platform
 
 ### Option 1: Deploy to Heroku
 
@@ -63,9 +72,9 @@ Visit `http://localhost:3000` in your browser to test the QR code generator.
    ```bash
    heroku create mcp-qrcode-generator
    ```
-5. Add your MCP API key to Heroku:
+5. Add your MCP signed URL to Heroku:
    ```bash
-   heroku config:set MCP_API_KEY=your_mcp_run_api_key_here
+   heroku config:set MCP_SIGNED_URL=your_signed_url_from_mcp_run_here
    ```
 6. Deploy your app:
    ```bash
@@ -86,7 +95,7 @@ Visit `http://localhost:3000` in your browser to test the QR code generator.
    ```bash
    vercel
    ```
-3. Set up environment variables in the Vercel dashboard
+3. Set up environment variables in the Vercel dashboard, adding your `MCP_SIGNED_URL`
 
 ### Option 3: Deploy to Netlify
 
@@ -98,23 +107,24 @@ Visit `http://localhost:3000` in your browser to test the QR code generator.
    ```bash
    netlify deploy
    ```
-3. Set up environment variables in the Netlify dashboard
+3. Set up environment variables in the Netlify dashboard, adding your `MCP_SIGNED_URL`
 
-## Step 6: Share Your URL
+## Step 7: Share Your URL
 
 Once deployed, you'll receive a URL for your application (like `https://mcp-qrcode-generator.herokuapp.com` or similar). Share this URL with anyone who needs to use your QR code generator!
 
 ## Important Notes
 
-1. Make sure your MCP.run API key is kept secure and not committed to public repositories
-2. Verify that you have the necessary permissions to use the QR code servlet on MCP.run
+1. Make sure your MCP.run signed URL is kept secure and not committed to public repositories
+2. The signed URL has an expiration date, so you'll need to generate a new one when it expires
 3. Consider implementing rate limiting to prevent abuse of your API
 
 ## Troubleshooting
 
 If you encounter issues:
 
-1. Check your MCP.run API key is valid
+1. Check that your signed URL is correctly formatted and hasn't expired
 2. Ensure you have the correct permissions to use the QR code servlet
 3. Check your server logs for any error messages
 4. Verify your API endpoint URLs are correct
+5. Make sure the EventSource connection is being established properly
