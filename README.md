@@ -66,15 +66,26 @@ Our Oracle Cloud implementation addresses these issues by providing a persistent
 
 See the [deployment instructions](DEPLOYMENT.md) for detailed setup steps.
 
-### Oracle Cloud Setup
+### Quick Start with Oracle Cloud
 
-To set up the Oracle Cloud instance:
-1. Create an Oracle Cloud VM.Standard.E2.1.Micro instance (Always Free tier)
-2. Install Python 3.6+ on the instance
-3. Upload the `oracle_proxy.py` script
-4. Create a `.env` file with the MCP_SIGNED_URL
-5. Set up the script to run as a systemd service for persistence
-6. Configure firewall rules to allow traffic on port 3000
+We provide an easy installation script for setting up the Oracle Cloud VM:
+
+```bash
+# Connect to your Oracle Cloud VM
+ssh -i <your-key> opc@<your-instance-ip>
+
+# Download and run the setup script
+wget https://raw.githubusercontent.com/MCERQUA/mcp-qrcode-generator/main/oracle_setup.sh
+chmod +x oracle_setup.sh
+sudo ./oracle_setup.sh
+```
+
+The script will:
+1. Install necessary dependencies
+2. Set up the Oracle Cloud proxy
+3. Configure the firewall
+4. Create and start the systemd service
+5. Provide you with the endpoint to use in your Netlify function
 
 ## Future Improvements
 
