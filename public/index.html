@@ -930,7 +930,8 @@
                     formData.append('logo', logoFile);
                     
                     requestBody = formData;
-                    requestHeaders = {}; // Let the browser set the correct headers for FormData
+                    // Don't manually set Content-Type header for FormData - browser sets it automatically
+                    requestHeaders = {}; 
                 } else {
                     // Standard JSON request for regular QR code
                     requestBody = JSON.stringify(requestData);
@@ -943,6 +944,19 @@
                     body: requestBody
                 });
                 
+                // Handle non-OK responses and try to get error message
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMessage = 'Server error';
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || errorData.error || 'Failed to generate QR code';
+                    } catch (e) {
+                        errorMessage = errorText || 'Server error occurred';
+                    }
+                    throw new Error(errorMessage);
+                }
+                
                 // Parse the response
                 const data = await response.json();
                 
@@ -950,7 +964,7 @@
                 loadingIndicator.style.display = 'none';
                 
                 // If the response was not successful, display the error
-                if (!response.ok || !data.success) {
+                if (!data.success) {
                     resultDiv.innerHTML = `
                         <div class="error-msg">
                             <p><i class="fas fa-exclamation-triangle"></i> Error Generating QR Code</p>
