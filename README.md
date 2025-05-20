@@ -1,16 +1,10 @@
-# MCP.run QR Code Generator
+# QR Nova Code Generator
 
-A web application that demonstrates using MCP.run servlets with a web interface.
+A simple and elegant web application for generating QR codes.
 
 ## Overview
 
-This project was designed to use the MCP.run QR code servlet to generate QR codes through a web interface. We've implemented a robust architecture with multiple fallback options to ensure reliability:
-
-1. **Primary Implementation**: Oracle Cloud VM with persistent connection to MCP.run
-2. **First Fallback**: Direct connection to MCP.run through Netlify function (if Oracle Cloud is unavailable)
-3. **Second Fallback**: Third-party QR code API (if both primary methods fail)
-
-This multi-layered approach ensures the application remains functional even if one or more components experience issues.
+This project provides a clean and user-friendly interface for generating QR codes. It uses a reliable third-party API (QRServer.com) to create high-quality QR codes that work with any modern smartphone.
 
 ## Live Demo
 
@@ -21,78 +15,60 @@ You can try the live application at: [https://qrcode-mcp.netlify.app/](https://q
 - Generate QR codes from any text or URL
 - Customize QR code size
 - Download generated QR codes
-- Reliable operation with multiple fallback mechanisms
+- Mobile-friendly interface
+- Fast and reliable operation
 
 ## How It Works
 
 1. User enters text to encode in a QR code through the web interface
 2. The request is sent to a Netlify serverless function
-3. The function tries three approaches in sequence:
-   - First, it contacts the Oracle Cloud instance which maintains a persistent connection to MCP.run
-   - If that fails, it attempts to connect directly to MCP.run
-   - As a last resort, it uses a third-party QR code API
+3. The function connects to QRServer.com API to generate the QR code
 4. The generated QR code is displayed and can be downloaded
 
 ## Technical Notes
 
-### Oracle Cloud Implementation
+The application uses a simple architecture:
 
-We've implemented a persistent connection to MCP.run on an Oracle Cloud VM using Python. This approach:
-
-- Maintains a continuous connection to the MCP.run SSE endpoint
-- Exposes a simple API that the Netlify function can call
-- Handles requests efficiently with appropriate error handling
-- Automatically reconnects if the connection is lost
-
-### Netlify Serverless Function
-
-The Netlify function acts as a smart proxy that:
-
-1. Attempts to contact the Oracle Cloud instance
-2. Falls back to a direct MCP.run connection if Oracle Cloud is unavailable
-3. Uses a third-party QR code API as a last resort
-
-### MCP.run Connection Issues
-
-When directly connecting to the MCP.run servlet from a Netlify serverless function, we encountered issues with the Server-Sent Events (SSE) connection. The main challenges were:
-
-1. **Statelessness**: Netlify Functions are stateless and don't maintain persistent connections well
-2. **Timeout limitations**: Serverless functions have execution time limits
-3. **Environment differences**: The EventSource API behaves differently in Node.js compared to browsers
-
-Our Oracle Cloud implementation addresses these issues by providing a persistent, reliable connection.
+- Frontend: HTML, CSS, and JavaScript
+- Backend: Netlify Functions with Node.js
+- QR Code Generation: QRServer.com API
 
 ## Setup and Deployment
 
-See the [deployment instructions](DEPLOYMENT.md) for detailed setup steps.
+### Local Development
 
-### Quick Start with Oracle Cloud
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MCERQUA/mcp-qrcode-generator.git
+   cd mcp-qrcode-generator
+   ```
 
-We provide an easy installation script for setting up the Oracle Cloud VM:
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-# Connect to your Oracle Cloud VM
-ssh -i <your-key> opc@<your-instance-ip>
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-# Download and run the setup script
-wget https://raw.githubusercontent.com/MCERQUA/mcp-qrcode-generator/main/oracle_setup.sh
-chmod +x oracle_setup.sh
-sudo ./oracle_setup.sh
-```
+4. Open your browser and navigate to `http://localhost:3000`
 
-The script will:
-1. Install necessary dependencies
-2. Set up the Oracle Cloud proxy
-3. Configure the firewall
-4. Create and start the systemd service
-5. Provide you with the endpoint to use in your Netlify function
+### Netlify Deployment
+
+1. Fork this repository to your GitHub account
+2. Log in to Netlify and create a new site from your forked repository
+3. Deploy with the following settings:
+   - Build command: `npm install`
+   - Publish directory: `public`
 
 ## Future Improvements
 
-- Implement better error handling and retry mechanisms
-- Add monitoring and alerting for the Oracle Cloud instance
-- Enhance the proxy API with additional QR code customization options
-- Explore other MCP.run servlets for additional features
+- Add color customization options
+- Implement error correction level selection
+- Add logo overlay capabilities
+- Support for different QR code formats (vCard, WiFi, etc.)
 
 ## License
 
@@ -100,4 +76,5 @@ MIT
 
 ## Credits
 
-This project uses the QR code servlet concept from [MCP.run](https://mcp.run/nilslice/qr-code).
+- QR code generation powered by [QRServer.com](https://qrserver.com/)
+- UI design and development by Echo AI Systems
