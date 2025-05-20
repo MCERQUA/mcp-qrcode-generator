@@ -1,4 +1,4 @@
-// server.js - Express server for QR code generator with logo overlay
+/ server.js - Express server for QR code generator with logo overlay
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
