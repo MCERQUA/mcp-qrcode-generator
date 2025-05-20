@@ -34,15 +34,19 @@ const upload = multer({
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from 'public' directory
 
-// Set Content Security Policy headers
+// Set more permissive Content Security Policy headers for development
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://api.qrserver.com; connect-src 'self' https://api.qrserver.com"
+    "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';"
   );
   next();
 });
@@ -120,30 +124,37 @@ app.post('/api/qr-code-with-logo', upload.single('logo'), async (req, res) => {
         .toBuffer();
       
       // Load both the QR code and logo with Jimp - wrapped in try/catch for better error handling
-      const [qrCodeImage, logoImage] = await Promise.all([
-        Jimp.read(qrCodeBuffer),
-        Jimp.read(logoBuffer)
-      ]);
-      
-      // Calculate the position to center the logo on the QR code
-      const logoX = Math.floor((qrCodeImage.getWidth() - logoImage.getWidth()) / 2);
-      const logoY = Math.floor((qrCodeImage.getHeight() - logoImage.getHeight()) / 2);
-      
-      // Composite the logo onto the QR code
-      qrCodeImage.composite(logoImage, logoX, logoY, {
-        mode: Jimp.BLEND_SOURCE_OVER,
-        opacitySource: 1,
-        opacityDest: 1
-      });
-      
-      // Convert the result to a base64 string
-      const resultBase64 = await qrCodeImage.getBase64Async(Jimp.MIME_PNG);
-      
-      // Return the result
-      res.json({
-        qrImageBase64: resultBase64,
-        success: true
-      });
+      try {
+        const qrCodeImage = await Jimp.read(qrCodeBuffer);
+        const logoImage = await Jimp.read(logoBuffer);
+        
+        // Calculate the position to center the logo on the QR code
+        const logoX = Math.floor((qrCodeImage.getWidth() - logoImage.getWidth()) / 2);
+        const logoY = Math.floor((qrCodeImage.getHeight() - logoImage.getHeight()) / 2);
+        
+        // Composite the logo onto the QR code
+        qrCodeImage.composite(logoImage, logoX, logoY, {
+          mode: Jimp.BLEND_SOURCE_OVER,
+          opacitySource: 1,
+          opacityDest: 1
+        });
+        
+        // Convert the result to a base64 string
+        const resultBase64 = await qrCodeImage.getBase64Async(Jimp.MIME_PNG);
+        
+        // Return the result
+        res.json({
+          qrImageBase64: resultBase64,
+          success: true
+        });
+      } catch (jimpError) {
+        console.error('Error processing images with Jimp:', jimpError);
+        return res.status(500).json({
+          error: 'Image processing failed',
+          message: 'Error processing logo with QR code: ' + jimpError.message,
+          success: false
+        });
+      }
     } catch (processingError) {
       console.error('Error processing QR code with logo:', processingError);
       return res.status(500).json({
