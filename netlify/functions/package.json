@@ -1,10 +1,9 @@
 {
   "name": "qr-code-function",
   "version": "1.0.0",
-  "description": "Netlify function for connecting to MCP.run",
+  "description": "Netlify function for QR code generation",
   "main": "qr-code.js",
   "dependencies": {
-    "dotenv": "^16.3.1",
-    "eventsource": "^2.0.2"
+    "dotenv": "^16.3.1"
   }
 }
