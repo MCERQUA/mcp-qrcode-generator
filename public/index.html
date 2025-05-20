@@ -294,16 +294,6 @@
             margin-bottom: 15px;
         }
         
-        .mcp-error {
-            color: #ef4444;
-            font-weight: 600;
-            padding: 15px;
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #ef4444;
-        }
-        
         .download-btn {
             background: var(--secondary);
             color: white;
@@ -417,7 +407,7 @@
     <div class="container">
         <div class="header">
             <h1 class="logo">QR <span>Nova</span></h1>
-            <p class="tagline">Next-generation QR code creation powered by MCP.run</p>
+            <p class="tagline">Fast and reliable QR code generation</p>
         </div>
         
         <div class="card">
@@ -443,7 +433,7 @@
             
             <div class="loader" id="loadingIndicator">
                 <div class="loading-circle"></div>
-                <p class="loader-text">Connecting to MCP.run...</p>
+                <p class="loader-text">Generating QR code...</p>
             </div>
             
             <div class="result" id="result">
@@ -454,8 +444,8 @@
         <div class="features">
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-                <h3 class="feature-title">MCP Integration</h3>
-                <p class="feature-desc">Powered by Model Context Protocol for AI-enabled QR code generation.</p>
+                <h3 class="feature-title">Fast Generation</h3>
+                <p class="feature-desc">Create QR codes instantly with our optimized generation engine.</p>
             </div>
             
             <div class="feature-card">
@@ -467,7 +457,7 @@
             <div class="feature-card">
                 <div class="feature-icon"><i class="fas fa-lock"></i></div>
                 <h3 class="feature-title">Secure Processing</h3>
-                <p class="feature-desc">Direct connection to MCP.run for reliable QR code creation.</p>
+                <p class="feature-desc">Your data remains secure with our reliable API connection.</p>
             </div>
         </div>
         
@@ -506,7 +496,7 @@
             resultDiv.classList.remove('show');
             
             try {
-                // Call the Netlify function endpoint that connects to MCP.run
+                // Call the Netlify function endpoint
                 const response = await fetch('/.netlify/functions/qr-code', {
                     method: 'POST',
                     headers: {
@@ -527,9 +517,9 @@
                 // If the response was not successful, display the error
                 if (!response.ok || !data.success) {
                     resultDiv.innerHTML = `
-                        <div class="mcp-error">
-                            <p><i class="fas fa-exclamation-triangle"></i> MCP.run Connection Error</p>
-                            <p>${data.message || 'Unable to connect to MCP.run'}</p>
+                        <div class="error-msg">
+                            <p><i class="fas fa-exclamation-triangle"></i> Error Generating QR Code</p>
+                            <p>${data.message || 'Unable to generate QR code'}</p>
                         </div>
                     `;
                     resultDiv.classList.add('show');
@@ -551,8 +541,8 @@
                 loadingIndicator.style.display = 'none';
                 
                 resultDiv.innerHTML = `
-                    <div class="mcp-error">
-                        <p><i class="fas fa-exclamation-triangle"></i> Error connecting to MCP.run</p>
+                    <div class="error-msg">
+                        <p><i class="fas fa-exclamation-triangle"></i> Error</p>
                         <p>${error.message}</p>
                     </div>
                 `;
