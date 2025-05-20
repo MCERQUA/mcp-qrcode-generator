@@ -1,9 +1,12 @@
 {
   "name": "qr-code-function",
   "version": "1.0.0",
-  "description": "Netlify function for QR code generation",
+  "description": "Netlify function for connecting to QR code APIs",
   "main": "qr-code.js",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2",
+    "form-data": "^4.0.0",
+    "sharp": "^0.32.6"
   }
 }
