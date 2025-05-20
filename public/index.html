@@ -490,6 +490,150 @@
         .custom-size-content.show {
             max-height: 100px;
         }
+        
+        /* Logo upload styles */
+        .logo-upload {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo-upload-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .logo-upload-header h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-upload-toggle {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0;
+        }
+        
+        .logo-upload-toggle:hover {
+            color: var(--accent);
+        }
+        
+        .logo-upload-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .logo-upload-content.show {
+            max-height: 300px;
+        }
+        
+        .logo-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .logo-input {
+            display: none;
+        }
+        
+        .logo-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .logo-input-label:hover {
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .logo-input-label i {
+            font-size: 2rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        
+        .logo-input-label span {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .logo-input-label small {
+            font-size: 0.8rem;
+            color: var(--gray);
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .logo-preview {
+            display: none;
+            margin-top: 15px;
+        }
+        
+        .logo-preview.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: white;
+            padding: 5px;
+        }
+        
+        .logo-preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .logo-remove-btn {
+            font-size: 0.8rem;
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .logo-remove-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .logo-info {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--secondary);
+        }
     </style>
 </head>
 <body>
@@ -521,8 +665,8 @@
                         <button type="button" class="size-btn" data-size="500" data-label="Large">
                             <i class="fas fa-desktop"></i> Large (500×500)
                         </button>
-                        <button type="button" class="size-btn" data-size="3000" data-label="Extra Large">
-                            <i class="fas fa-truck"></i> Extra Large (3000×3000)
+                        <button type="button" class="size-btn" data-size="1000" data-label="Extra Large">
+                            <i class="fas fa-truck"></i> Extra Large (1000×1000)
                         </button>
                     </div>
                     
@@ -539,7 +683,42 @@
                         </div>
                         
                         <div class="custom-size-content" id="customSizeContent">
-                            <input type="number" id="size" min="100" max="5000" value="150" placeholder="Enter size in pixels">
+                            <input type="number" id="size" min="100" max="2000" value="150" placeholder="Enter size in pixels">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logo Upload Section -->
+                <div class="logo-upload">
+                    <div class="logo-upload-header">
+                        <h3><i class="fas fa-image"></i> Add Your Logo to the QR Code</h3>
+                        <button type="button" class="logo-upload-toggle" id="logoUploadToggle">
+                            <span>Show logo options</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="logo-upload-content" id="logoUploadContent">
+                        <div class="logo-input-container">
+                            <input type="file" id="logoInput" class="logo-input" accept="image/*">
+                            <label for="logoInput" class="logo-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Click to upload your logo</span>
+                                <small>Recommended: Square PNG with transparent background</small>
+                            </label>
+                        </div>
+                        
+                        <div class="logo-preview" id="logoPreview">
+                            <img id="logoPreviewImage" src="" alt="Logo Preview">
+                            <div class="logo-preview-actions">
+                                <button type="button" class="logo-remove-btn" id="logoRemoveBtn">
+                                    <i class="fas fa-trash"></i> Remove Logo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="logo-info">
+                            <strong>Note:</strong> Adding a logo may reduce the QR code's scanability at very small sizes. 
+                            For best results, use a simple logo with high contrast and leave plenty of the QR code visible.
                         </div>
                     </div>
                 </div>
@@ -569,15 +748,15 @@
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
-                <h3 class="feature-title">Multiple Sizes</h3>
-                <p class="feature-desc">Choose from preset sizes or customize to your exact requirements.</p>
+                <div class="feature-icon"><i class="fas fa-image"></i></div>
+                <h3 class="feature-title">Custom Logos</h3>
+                <p class="feature-desc">Add your company logo to create branded QR codes that stand out.</p>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-lock"></i></div>
-                <h3 class="feature-title">Secure Processing</h3>
-                <p class="feature-desc">Your data remains secure with our reliable API connection.</p>
+                <div class="feature-icon"><i class="fas fa-expand-arrows-alt"></i></div>
+                <h3 class="feature-title">Multiple Sizes</h3>
+                <p class="feature-desc">From small digital displays to large vehicle wraps, we've got you covered.</p>
             </div>
         </div>
         
@@ -603,7 +782,7 @@
             'Small': 'Small size (150×150) - Perfect for social media icons and small digital displays',
             'Medium': 'Medium size (300×300) - Good for business cards, flyers, and standard print materials',
             'Large': 'Large size (500×500) - Ideal for posters, marketing materials, and presentations',
-            'Extra Large': 'Extra large size (3000×3000) - Best for high-resolution printing, large banners, and vehicle wraps'
+            'Extra Large': 'Extra large size (1000×1000) - Best for high-resolution printing, large banners, and vehicle wraps'
         };
         
         // Handle size button clicks
@@ -651,6 +830,57 @@
             }
         });
         
+        // Logo upload functionality
+        const logoUploadToggle = document.getElementById('logoUploadToggle');
+        const logoUploadContent = document.getElementById('logoUploadContent');
+        const logoInput = document.getElementById('logoInput');
+        const logoPreview = document.getElementById('logoPreview');
+        const logoPreviewImage = document.getElementById('logoPreviewImage');
+        const logoRemoveBtn = document.getElementById('logoRemoveBtn');
+        let logoFile = null;
+        let logoBase64 = null;
+        
+        // Toggle logo upload content
+        logoUploadToggle.addEventListener('click', function() {
+            const isShowing = logoUploadContent.classList.contains('show');
+            
+            if (isShowing) {
+                logoUploadContent.classList.remove('show');
+                this.querySelector('span').textContent = 'Show logo options';
+                this.querySelector('i').className = 'fas fa-chevron-down';
+            } else {
+                logoUploadContent.classList.add('show');
+                this.querySelector('span').textContent = 'Hide logo options';
+                this.querySelector('i').className = 'fas fa-chevron-up';
+            }
+        });
+        
+        // Handle logo file selection
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                logoFile = file;
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    logoBase64 = e.target.result;
+                    logoPreviewImage.src = logoBase64;
+                    logoPreview.classList.add('show');
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Handle logo removal
+        logoRemoveBtn.addEventListener('click', function() {
+            logoInput.value = '';
+            logoFile = null;
+            logoBase64 = null;
+            logoPreview.classList.remove('show');
+        });
+        
         // Form submission for QR code generation
         document.getElementById('qrForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -677,19 +907,43 @@
             resultDiv.classList.remove('show');
             
             try {
-                // Call the Netlify function endpoint
-                const response = await fetch('/.netlify/functions/qr-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: content,
-                        size: parseInt(size)
-                    })
+                let requestUrl = '/api/qr-code';
+                let requestData = {
+                    text: content,
+                    size: parseInt(size)
+                };
+                let requestMethod = 'POST';
+                let requestHeaders = {
+                    'Content-Type': 'application/json'
+                };
+                let requestBody;
+                
+                // Check if logo is uploaded
+                if (logoFile) {
+                    requestUrl = '/api/qr-code-with-logo';
+                    requestMethod = 'POST';
+                    
+                    // Create form data for file upload
+                    const formData = new FormData();
+                    formData.append('text', content);
+                    formData.append('size', size);
+                    formData.append('logo', logoFile);
+                    
+                    requestBody = formData;
+                    requestHeaders = {}; // Let the browser set the correct headers for FormData
+                } else {
+                    // Standard JSON request for regular QR code
+                    requestBody = JSON.stringify(requestData);
+                }
+                
+                // Make the request to the server
+                const response = await fetch(requestUrl, {
+                    method: requestMethod,
+                    headers: requestHeaders,
+                    body: requestBody
                 });
                 
-                // Get the response data
+                // Parse the response
                 const data = await response.json();
                 
                 // Hide loading indicator
@@ -708,15 +962,26 @@
                 }
                 
                 // Display the QR code
+                let imageUrl = data.qrImageBase64;
+                
+                // If the response is a base64 string (from logo version) and not a URL
+                if (imageUrl.startsWith('data:image')) {
+                    // Already a data URL, no need to change
+                } else if (!imageUrl.startsWith('http')) {
+                    // Convert to data URL if needed
+                    imageUrl = 'data:image/png;base64,' + imageUrl;
+                }
+                
                 resultDiv.innerHTML = `
                     <p class="success-msg"><i class="fas fa-check-circle"></i> QR Code Generated Successfully</p>
-                    <img id="qrImage" src="${data.qrImageBase64}" alt="QR Code">
+                    <img id="qrImage" src="${imageUrl}" alt="QR Code">
                     <p>Scan with your phone's camera to use</p>
-                    <a href="${data.qrImageBase64}" download="qrcode.png" class="download-btn">
+                    <a href="${imageUrl}" download="qrcode.png" class="download-btn">
                         <i class="fas fa-download"></i> Download QR Code
                     </a>
                 `;
                 resultDiv.classList.add('show');
+                
             } catch (error) {
                 // Hide loading indicator
                 loadingIndicator.style.display = 'none';
@@ -724,7 +989,7 @@
                 resultDiv.innerHTML = `
                     <div class="error-msg">
                         <p><i class="fas fa-exclamation-triangle"></i> Error</p>
-                        <p>${error.message}</p>
+                        <p>${error.message || 'An unexpected error occurred'}</p>
                     </div>
                 `;
                 resultDiv.classList.add('show');
